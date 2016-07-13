@@ -120,13 +120,14 @@ syntax on
  set expandtab
 " set noexpandtab
 "
-au BufRead *.py map <buffer> <F5> :w<CR>:!/usr/bin/env python % <CR>
+"au BufRead *.py map <buffer> <F5> :w<CR>:!/usr/bin/env python % <CR>
 
  "  colorscheme evening
   colorscheme default
 
 set completeopt-=preview
 
+set hidden
 
 "Vundle
 set nocompatible              " be iMproved, required
@@ -149,8 +150,10 @@ filetype off                  " required
    Plugin 'fholgado/minibufexpl.vim'
    Plugin 'jcfaria/Vim-R-plugin'
  "  Plugin 'Valloric/YouCompleteMe'
-   Plugin 'rdnetto/YCM-Generator'
+ "  Plugin 'rdnetto/YCM-Generator'
    Plugin 'benmills/vimux'
+ " Plugin 'dbext.vim'
+ " Plugin 'ivanov/vim-ipython'
 " plugin from http://vim-scripts.org/vim/scripts.html
    "Plugin 'L9'
  
@@ -209,3 +212,36 @@ let vimrplugin_objbr_w = 40
 "let vimrplugin_tmux_ob = 0
 "let vimrplugin_vsplit=0
 "let vimrplugin_objbr_place = "console,right"
+let maplocalleader = ","
+
+"dbext
+"source /root/db_config.vim
+"let g:dbext_map_prefix = ',s'
+
+"vimux
+map ,vf :call VimuxRunCommand("ipython")<CR>
+" Prompt for a command to run
+map ,vp :VimuxPromptCommand<CR>
+" Run last command executed by VimuxRunCommand
+map ,vl :VimuxRunLastCommand<CR>
+" Inspect runner pane
+map ,vi :VimuxInspectRunner<CR>
+" Close vim tmux runner opened by VimuxRunCommand
+map ,vq :VimuxCloseRunner<CR>
+" Interrupt any command running in the runner pane
+map ,vx :VimuxInterruptRunner<CR>
+" Zoom the runner pane (use <bind-key> z to restore runner pane)
+map ,vz :call VimuxZoomRunner()<CR>
+"The percent of the screen the split pane Vimux will spawn should take up.
+let g:VimuxHeight = "40"
+
+
+function! VimuxSlime()
+    call VimuxSendText(@v)
+    "call VimuxSendKeys("Enter")
+endfunction
+
+vnoremap ,vs "vy: call VimuxSlime()<CR><CR>
+nnoremap ,vs "vyy: call VimuxSlime()<CR><CR>
+"nmap <Space> vip <Space><CR>
+
