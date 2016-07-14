@@ -177,7 +177,7 @@ filetype off                  " required
 
 "youcompelteme
 
-"let g:ycm_global_ycm_extra_conf ='/root/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
+"let g:ycm_global_ycm_extra_conf ='$HOME/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
 
 
 
@@ -215,7 +215,7 @@ let vimrplugin_objbr_w = 40
 let maplocalleader = ","
 
 "dbext
-"source /root/db_config.vim
+"source $HOME/db_config.vim
 "let g:dbext_map_prefix = ',s'
 
 "vimux
