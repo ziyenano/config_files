@@ -51,7 +51,7 @@ endif
 " Also switch on highlighting the last used search pattern.
 if &t_Co > 2 || has("gui_running")
   syntax on
-  set hlsearch
+  "set hlsearch
 endif
 
 " Only do this part when compiled with support for autocommands.
@@ -104,29 +104,25 @@ if has('langmap') && exists('+langnoremap')
 endif
 
 
- "语法高亮
-syntax on
+set number
 
-" "显示行号
- set number
+set autoindent 
 
-" 自动缩进
- set autoindent 
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
 
- set tabstop=4
- set softtabstop=4
- set shiftwidth=4
-
- set expandtab
+set expandtab
 " set noexpandtab
-"
 "au BufRead *.py map <buffer> <F5> :w<CR>:!/usr/bin/env python % <CR>
 
- "  colorscheme evening
-  colorscheme default
+"  colorscheme evening
+colorscheme default
 
+"suppress the preview window while completion, e.g, python 
 set completeopt-=preview
 
+"switch to other buffer without saving
 set hidden
 
 "Vundle
@@ -184,14 +180,12 @@ filetype off                  " required
 
 
 "taglist
-"let Tlist_Show_One_File=1    "只显示当前文件的tags
-"let Tlist_WinWidth=40        "设置taglist宽度
-"let Tlist_Exit_OnlyWindow=1  "tagList窗口是最后一个窗口,则退出Vim
-"let Tlist_Use_Right_Window=1 "在Vim窗口右侧显示taglist窗口
-"let Tlist_Auto_Open=0 "在启动 vim 后,自动打开 taglist 窗口。
-"let Tlist_File_Fold_Auto_Close=1 "taglist 只显示当前文件 tag，其它文件的tag折叠
-"let Tlist_WinHeight & Tlist_WinWidth "可以设置taglist窗口的高度和宽度
-"let Tlist_Use_Horiz_Window=1 "设置taglist窗口横向显示
+"let Tlist_Show_One_File=1    "only show tags of current file
+"let Tlist_Exit_OnlyWindow=1  "quit vim if taglist is the last window
+"let Tlist_Use_Right_Window=1 "set taglist in the right
+"let Tlist_Auto_Open=0 "automatically start taglist after vim startup
+"let Tlist_WinHeight & Tlist_WinWidth "set width or height of taglist
+"let Tlist_Use_Horiz_Window=1 "set taglist horizontal shown
 
 "miniBufexplorer
 " let g:miniBufExplorerMoreThanOne=1
@@ -212,6 +206,7 @@ let vimrplugin_objbr_w = 40
 "let vimrplugin_tmux_ob = 0
 "let vimrplugin_vsplit=0
 "let vimrplugin_objbr_place = "console,right"
+let vimrplugin_objbr_opendf = 0
 let maplocalleader = ","
 
 "dbext
