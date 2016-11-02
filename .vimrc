@@ -232,11 +232,19 @@ let g:VimuxHeight = "40"
 
 
 function! VimuxSlime()
+    call VimuxSendText("%cpaste")
+    call VimuxSendKeys("Enter")
     call VimuxSendText(@v)
+    call VimuxSendKeys("C-d")
     "call VimuxSendKeys("Enter")
 endfunction
 
-vnoremap ,vs "vy: call VimuxSlime()<CR><CR>
-nnoremap ,vs "vyy: call VimuxSlime()<CR><CR>
+function! VimuxSlime_Oneline()
+    call VimuxSendText(@v)
+endfunction
+
+vnoremap ,vs  "vy: call VimuxSlime()<CR><CR>
+"nnoremap ,ve  :call VimuxSendKeys("C-d")<CR>
+nnoremap ,vs "vyy: call VimuxSlime_Oneline()<CR><CR>
 "nmap <Space> vip <Space><CR>
 
