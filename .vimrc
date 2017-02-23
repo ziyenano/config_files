@@ -1,3 +1,11 @@
+" An example for a vimrc file.
+"
+" Maintainer:	Bram Moolenaar <Bram@vim.org>
+" Last change:	2014 Nov 05
+"
+" To use it, copy it to
+"     for Unix and OS/2:  ~/.vimrc
+"	      for Amiga:  s:.vimrc
 "  for MS-DOS and Win32:  $VIM\_vimrc
 "	    for OpenVMS:  sys$login:.vimrc
 
@@ -108,11 +116,16 @@ set expandtab
 " set noexpandtab
 "au BufRead *.py map <buffer> <F5> :w<CR>:!/usr/bin/env python % <CR>
 
-"  colorscheme evening
 colorscheme default
+"set background=dark
+"colorscheme solarized
 
 "suppress the preview window while completion, e.g, python 
 set completeopt-=preview
+
+let mapleader = ","
+let maplocalleader = ","
+inoremap jk <esc>
 
 "switch to other buffer without saving
 set hidden
@@ -125,7 +138,7 @@ filetype off                  " required
  set rtp+=~/.vim/bundle/Vundle.vim
  call vundle#begin()
  " alternatively, pass a path where Vundle should install plugins
- " call vundle#begin('~/some/path/here')
+ "call vundle#begin('~/some/path/here')
 
  " let Vundle manage Vundle, required
    Plugin 'VundleVim/Vundle.vim'
@@ -136,16 +149,16 @@ filetype off                  " required
 
    Plugin 'ervandew/supertab'
  "  Plugin 'fholgado/minibufexpl.vim'
- "  Plugin 'jcfaria/Vim-R-plugin'
+   Plugin 'jcfaria/Vim-R-plugin'
+   Plugin 'vim-airline/vim-airline'
+   Plugin 'vim-airline/vim-airline-themes'
+   Plugin 'vim-syntastic/syntastic'
+ 
  "  Plugin 'Valloric/YouCompleteMe'
  "  Plugin 'rdnetto/YCM-Generator'
    Plugin 'benmills/vimux'
  "  Plugin 'dbext.vim'
  "  Plugin 'ivanov/vim-ipython'
-   Plugin 'vim-airline/vim-airline'
-   Plugin 'vim-airline/vim-airline-themes'
-   Plugin 'tpope/vim-fugitive'
-   Plugin 'vim-syntastic/syntastic'
  "  plugin from http://vim-scripts.org/vim/scripts.html
  "  Plugin 'L9'
  
@@ -202,32 +215,33 @@ let vimrplugin_objbr_w = 40
 "let vimrplugin_tmux_ob = 0
 "let vimrplugin_vsplit=0
 "let vimrplugin_objbr_place = "console,right"
+let vimrplugin_rconsole_height = 16
 let vimrplugin_objbr_opendf = 0
-let maplocalleader = ","
 
 "dbext
 "source $HOME/db_config.vim
 "let g:dbext_map_prefix = ',s'
-
 "vimux
-map ,vf :call VimuxRunCommand("ipython")<CR>
+map <Leader>vf :call VimuxRunCommand("ipython")<CR>
 " Prompt for a command to run
-map ,vp :VimuxPromptCommand<CR>
+map <Leader>vp :VimuxPromptCommand<CR>
 " Run last command executed by VimuxRunCommand
-map ,vl :VimuxRunLastCommand<CR>
+map <Leader>vl :VimuxRunLastCommand<CR>
 " Inspect runner pane
-map ,vi :VimuxInspectRunner<CR>
+map <Leader>vi :VimuxInspectRunner<CR>
 " Close vim tmux runner opened by VimuxRunCommand
-map ,vq :VimuxCloseRunner<CR>
+map <Leader>vq :VimuxCloseRunner<CR>
 " Interrupt any command running in the runner pane
-map ,vx :VimuxInterruptRunner<CR>
+map <Leader>vx :VimuxInterruptRunner<CR>
 " Zoom the runner pane (use <bind-key> z to restore runner pane)
-map ,vz :call VimuxZoomRunner()<CR>
+map <Leader>vz :call VimuxZoomRunner()<CR>
 "The percent of the screen the split pane Vimux will spawn should take up.
 let g:VimuxHeight = "40"
-"let g:VimuxOrientation = "h"
 
-function! VimuxSlime()
+let g:VimuxOrientation = "v"
+
+
+function! VimuxSlimePy()
     call VimuxSendText("%cpaste")
     call VimuxSendKeys("Enter")
     call VimuxSendText(@v)
@@ -235,21 +249,26 @@ function! VimuxSlime()
     "call VimuxSendKeys("Enter")
 endfunction
 
-function! VimuxSlime_Oneline()
+function! VimuxSlime()
     call VimuxSendText(@v)
+    "call VimuxSendKeys("Enter")
 endfunction
 
-vnoremap ,vs  "vy: call VimuxSlime()<CR><CR>
-"nnoremap ,ve  :call VimuxSendKeys("C-d")<CR>
-nnoremap ,vs "vyy: call VimuxSlime_Oneline()<CR><CR>
-"nmap <Space> vip <Space><CR>
+function! VimuxSlimeOneline()
+    call VimuxSendText(@v)
+    "call VimuxSendKeys("Enter")
+endfunction
+
+vnoremap <LocalLeader>vs "vy: call VimuxSlime()<CR><CR>
+autocmd Filetype python vnoremap <buffer> <LocalLeader>vs "vy: call VimuxSlimePy()<CR><CR>
+nnoremap <LocalLeader>vs "vyy: call VimuxSlimeOneline()<CR><CR>
 
 
 "vim-airline
 set laststatus=2
 set t_Co=256
 
-let g:airline_powerline_fonts = 1   
+let g:airline_powerline_fonts = 1
 
 if !exists('g:airline_symbols')
     let g:airline_symbols = {}
@@ -258,43 +277,42 @@ endif
 let g:airline_theme="luna"
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#whitespace#checks = ['']
-"autocmd FileType * unlet! g:airline#extensions#whitespace#checks
-"autocmd FileType markdown let g:airline#extensions#whitespace#checks = [ 'indent' ]
-
+"autocmd FileType * unlet! g:airline#extensions
+"autocmd FileType vim let g:airline#extensions#whitespace#checks = [ 'indent' ]
 
 " unicode symbols
-let g:airline_left_sep = '»'
-let g:airline_left_sep = '▶'
-let g:airline_right_sep = '«'
-let g:airline_right_sep = '◀'
-let g:airline_symbols.linenr = '␊'
-let g:airline_symbols.linenr = '␤'
-let g:airline_symbols.linenr = '¶'
-let g:airline_symbols.branch = '⎇'
-let g:airline_symbols.paste = 'ρ'
-let g:airline_symbols.paste = 'Þ'
-let g:airline_symbols.paste = '∥'
-let g:airline_symbols.whitespace = 'Ξ'
+"let g:airline_left_sep = '»'
+"let g:airline_left_sep = '▶'
+"let g:airline_right_sep = '«'
+"let g:airline_right_sep = '◀'
+"let g:airline_symbols.linenr = '␊'
+"let g:airline_symbols.linenr = '␤'
+"let g:airline_symbols.linenr = '¶'
+"let g:airline_symbols.branch = '⎇'
+"let g:airline_symbols.paste = 'ρ'
+"let g:airline_symbols.paste = 'Þ'
+"let g:airline_symbols.paste = '∥'
+"let g:airline_symbols.whitespace = 'Ξ'
 
 " airline symbols
-let g:airline_left_sep = ''
-let g:airline_left_alt_sep = ''
-let g:airline_right_sep = ''
-let g:airline_right_alt_sep = ''
-let g:airline_symbols.branch = ''
-let g:airline_symbols.readonly = ''
-let g:airline_symbols.linenr = ''
+let g:airline_left_sep = '' 
+let g:airline_left_alt_sep = '' 
+let g:airline_right_sep = '' 
+let g:airline_right_alt_sep = '' 
+let g:airline_symbols.branch = '' 
+let g:airline_symbols.readonly = '' 
+let g:airline_symbols.linenr = '' 
 
 "syntastic
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
+"set statusline+=%#warningmsg#
+"set statusline+=%{SyntasticStatuslineFlag()}
+"set statusline+=%*
 
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 0
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
+let g:syntastic_always_populate_loc_list = 1 
+let g:syntastic_auto_loc_list = 0 
+let g:syntastic_check_on_open = 1 
+let g:syntastic_check_on_wq = 0 
 let g:syntastic_python_pylint_quiet_messages = { "level": "warnings" }
 
-"for comfortablely reading location list [syntastic] 
-hi Search term=reverse ctermbg=000  guibg=black
+"for comfortablely reading location list [syntastic]
+hi Search term=reverse ctermbg=000  guibg=black 
