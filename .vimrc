@@ -130,6 +130,12 @@ inoremap jk <esc>
 "switch to other buffer without saving
 set hidden
 
+"popup menu colors
+hi Pmenu ctermfg=15 ctermbg=60
+hi PmenuSel  ctermfg=0 ctermbg=7 guibg=Grey
+hi PmenuSbar  ctermbg=60
+hi PmenuThumb ctermbg=7 guibg=Grey
+
 "Vundle
 set nocompatible              " be iMproved, required
 filetype off                  " required
@@ -153,12 +159,16 @@ filetype off                  " required
    Plugin 'vim-airline/vim-airline'
    Plugin 'vim-airline/vim-airline-themes'
    Plugin 'vim-syntastic/syntastic'
- 
+   Plugin 'benmills/vimux'
+   Plugin 'SirVer/ultisnips'
+   Plugin 'honza/vim-snippets'
+   Plugin 'Rip-Rip/clang_complete'
+   Plugin 'majutsushi/tagbar'
+   Plugin 'scrooloose/nerdtree'
+
  "  Plugin 'Valloric/YouCompleteMe'
  "  Plugin 'rdnetto/YCM-Generator'
-   Plugin 'benmills/vimux'
  "  Plugin 'dbext.vim'
- "  Plugin 'ivanov/vim-ipython'
  "  plugin from http://vim-scripts.org/vim/scripts.html
  "  Plugin 'L9'
  
@@ -183,28 +193,20 @@ filetype off                  " required
 "youcompelteme
 
 "let g:ycm_global_ycm_extra_conf ='$HOME/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
-
-
-
-
-
-"taglist
-"let Tlist_Show_One_File=1    "only show tags of current file
-"let Tlist_Exit_OnlyWindow=1  "quit vim if taglist is the last window
-"let Tlist_Use_Right_Window=1 "set taglist in the right
-"let Tlist_Auto_Open=0 "automatically start taglist after vim startup
-"let Tlist_WinHeight & Tlist_WinWidth "set width or height of taglist
-"let Tlist_Use_Horiz_Window=1 "set taglist horizontal shown
+"let g:ycm_global_ycm_extra_conf ='$HOME/.ycm_extra_conf.py'
 
 "miniBufexplorer
 " let g:miniBufExplorerMoreThanOne=1
 
-
 "supertab
 "let g:SuperTabDefaultCompletionType = "<c-p>"
-let g:SuperTabDefaultCompletionType="context" 
+let g:SuperTabDefaultCompletionType = "context"
 let g:SuperTabContextDefaultCompletionType = "<c-p>"
-"let g:SuperTabRetainCompletionType = 2 
+let g:SuperTabRetainCompletionType = "insert"
+"autocmd FileType *
+"    \ if &omnifunc != '' |
+"    \   call SuperTabChain(&omnifunc, "<c-p>") |
+"    \ endif
 
 "vim -r- plugin
 imap <c-a> <Plug>RCompleteArgs
@@ -259,9 +261,9 @@ function! VimuxSlimeOneline()
     "call VimuxSendKeys("Enter")
 endfunction
 
-vnoremap <LocalLeader>vs "vy: call VimuxSlime()<CR><CR>
-autocmd Filetype python vnoremap <buffer> <LocalLeader>vs "vy: call VimuxSlimePy()<CR><CR>
-nnoremap <LocalLeader>vs "vyy: call VimuxSlimeOneline()<CR><CR>
+vnoremap <space> "vy: call VimuxSlime()<CR><CR>
+autocmd Filetype python vnoremap <buffer> <space> "vy: call VimuxSlimePy()<CR><CR>
+nnoremap <space> "vyy: call VimuxSlimeOneline()<CR><CR>
 
 
 "vim-airline
@@ -312,7 +314,30 @@ let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 0 
 let g:syntastic_check_on_open = 1 
 let g:syntastic_check_on_wq = 0 
+"python
 let g:syntastic_python_pylint_quiet_messages = { "level": "warnings" }
+"R
+let g:syntastic_enable_r_lintr_checker = 0
+let g:syntastic_r_checkers = ['lintr']
 
 "for comfortablely reading location list [syntastic]
 hi Search term=reverse ctermbg=000  guibg=black 
+
+"ultisnips
+"let g:UltiSnipsExpandTrigger = "<tab>"
+let g:UltiSnipsListSnippets = "<c-l>"
+
+"clang-complete
+ let g:clang_complete_copen = 1
+ let g:clang_library_path = '/usr/lib/llvm-3.5/lib/libclang-3.5.so.1'
+ "let g:clang_snippets = 1
+ "let g:clang_snippets_engine = 'ultisnips'
+ let g:clang_complete_auto = 1 
+ let g:clang_auto_select = 0
+
+ "tagbar
+ nmap  <Leader>tt :TagbarToggle<CR>
+ let g:tagbar_width = 35
+
+ "nerdtree
+ nmap  <Leader>nt :NERDTreeToggle<CR>
