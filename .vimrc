@@ -125,7 +125,9 @@ set completeopt-=preview
 
 let mapleader = ","
 let maplocalleader = ","
+
 inoremap jk <esc>
+vnoremap jk <esc>
 
 "switch to other buffer without saving
 set hidden
@@ -195,9 +197,6 @@ filetype off                  " required
 "let g:ycm_global_ycm_extra_conf ='$HOME/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
 "let g:ycm_global_ycm_extra_conf ='$HOME/.ycm_extra_conf.py'
 
-"miniBufexplorer
-" let g:miniBufExplorerMoreThanOne=1
-
 "supertab
 "let g:SuperTabDefaultCompletionType = "<c-p>"
 let g:SuperTabDefaultCompletionType = "context"
@@ -210,11 +209,9 @@ let g:SuperTabRetainCompletionType = "insert"
 
 "vim -r- plugin
 imap <c-a> <Plug>RCompleteArgs
-vmap <Space> <Plug>REDSendSelection
-nmap <Space> <Plug>RDSendLine
-let vimrplugin_assign =2 
-let vimrplugin_objbr_w = 40
-"let vimrplugin_tmux_ob = 0
+autocmd Filetype r vmap <buffer> <Space>  <Plug>REDSendSelection
+autocmd Filetype r nmap <buffer> <Space>  <Plug>RDSendLine
+"let vimrplugin_tmux_ob = 0 
 "let vimrplugin_vsplit=0
 "let vimrplugin_objbr_place = "console,right"
 let vimrplugin_rconsole_height = 16
@@ -223,48 +220,76 @@ let vimrplugin_objbr_opendf = 0
 "dbext
 "source $HOME/db_config.vim
 "let g:dbext_map_prefix = ',s'
+
 "vimux
-map <Leader>vf :call VimuxRunCommand("ipython")<CR>
+nmap <Leader>vf :call VimuxRunCommand("ipython")<CR>
 " Prompt for a command to run
-map <Leader>vp :VimuxPromptCommand<CR>
+nmap <Leader>vr :VimuxPromptCommand<CR>
 " Run last command executed by VimuxRunCommand
-map <Leader>vl :VimuxRunLastCommand<CR>
+nmap <Leader>vl :VimuxRunLastCommand<CR>
 " Inspect runner pane
-map <Leader>vi :VimuxInspectRunner<CR>
+nmap <Leader>vi :VimuxInspectRunner<CR>
 " Close vim tmux runner opened by VimuxRunCommand
-map <Leader>vq :VimuxCloseRunner<CR>
+nmap <Leader>vq :VimuxCloseRunner<CR>
 " Interrupt any command running in the runner pane
-map <Leader>vx :VimuxInterruptRunner<CR>
+nmap <Leader>vx :VimuxInterruptRunner<CR>
 " Zoom the runner pane (use <bind-key> z to restore runner pane)
-map <Leader>vz :call VimuxZoomRunner()<CR>
+nmap <Leader>vz :call VimuxZoomRunner()<CR>
+" clear the console
+nmap <silent><Leader>vc :call VimuxSendKeys("c-l")<CR>
+
 "The percent of the screen the split pane Vimux will spawn should take up.
 let g:VimuxHeight = "40"
 
 let g:VimuxOrientation = "v"
 
-
-function! VimuxSlimePy()
-    call VimuxSendText("%cpaste")
-    call VimuxSendKeys("Enter")
-    call VimuxSendText(@v)
-    call VimuxSendKeys("C-d")
-    "call VimuxSendKeys("Enter")
+" if we directly map the target function, while dealing with the blank line, the 
+" internal line/getpos will return the number of next line, however, when we
+" add an extra wrap funciton, it works properly again. 
+function! VimuxCreateMaps(combo, target, mode)
+    let tg = a:target . '<CR>'
+        exec 'vnoremap' . a:mode . a:combo . ' <Esc>' . tg
 endfunction
 
+
 function! VimuxSlime()
-    call VimuxSendText(@v)
-    "call VimuxSendKeys("Enter")
+    let lines = getline("'<", "'>")
+    let i = col("'<") - 1
+    let j = col("'>")
+    let lines[0] = strpart(lines[0], i)
+    let llen = len(lines) - 1
+    let lines[llen] = strpart(lines[llen], 0, j)
+    if &filetype == "python"
+        call VimuxSendText("%cpaste")
+        call VimuxSendKeys("Enter")
+    endif
+    for text in lines
+        call VimuxSendText(text)
+        call VimuxSendKeys("Enter")
+    endfor
+    if &filetype == "python"
+        call VimuxSendKeys("C-d")
+    endif
+    call cursor(line(".") + 1, 1)
 endfunction
 
 function! VimuxSlimeOneline()
     call VimuxSendText(@v)
-    "call VimuxSendKeys("Enter")
+    call cursor(line(".") + 1, 1)
 endfunction
 
-vnoremap <space> "vy: call VimuxSlime()<CR><CR>
-autocmd Filetype python vnoremap <buffer> <space> "vy: call VimuxSlimePy()<CR><CR>
-nnoremap <space> "vyy: call VimuxSlimeOneline()<CR><CR>
+function! VimuxAction(arg)
+    call VimuxSendText(a:arg. "(". @v . ")")
+    call VimuxSendKeys("Enter")
+endfunction
 
+call VimuxCreateMaps('<Space>', ':call VimuxSlime()', '<silent>')
+nnoremap <silent> <Space> "vyy :call VimuxSlimeOneline()<CR>
+
+nnoremap <silent> <Leader>vp "vyiw :call VimuxAction("print")<CR>
+vnoremap <silent> <Leader>vp "vy :call VimuxAction("print")<CR>
+autocmd Filetype python nnoremap <buffer><silent> <Leader>vt "vyiw :call VimuxAction("type")<CR>
+autocmd Filetype python vnoremap <buffer><silent> <Leader>vt "vy :call VimuxAction("type")<CR>
 
 "vim-airline
 set laststatus=2
