@@ -43,9 +43,9 @@ map Q gq
 inoremap <C-U> <C-G>u<C-U>
 
 " In many terminal emulators the mouse works just fine, thus enable it.
-if has('mouse')
-  set mouse-=a
-endif
+"if has('mouse')
+"  set mouse=a
+"endif
 
 " Switch syntax highlighting on, when the terminal has colors
 " Also switch on highlighting the last used search pattern.
@@ -123,6 +123,9 @@ colorscheme default
 "suppress the preview window while completion, e.g, python 
 set completeopt-=preview
 
+"do not autoselect the first item
+set completeopt=longest,menuone
+
 let mapleader = ","
 let maplocalleader = ","
 
@@ -137,6 +140,10 @@ hi Pmenu ctermfg=15 ctermbg=60
 hi PmenuSel  ctermfg=0 ctermbg=7 guibg=Grey
 hi PmenuSbar  ctermbg=60
 hi PmenuThumb ctermbg=7 guibg=Grey
+
+"split line color and style
+hi VertSplit term=bold cterm=bold  gui=bold
+"set fillchars=vert:|
 
 "Vundle
 set nocompatible              " be iMproved, required
@@ -167,6 +174,8 @@ filetype off                  " required
    Plugin 'Rip-Rip/clang_complete'
    Plugin 'majutsushi/tagbar'
    Plugin 'scrooloose/nerdtree'
+   Plugin 'tpope/vim-fugitive'
+   
 
  "  Plugin 'Valloric/YouCompleteMe'
  "  Plugin 'rdnetto/YCM-Generator'
@@ -200,22 +209,37 @@ filetype off                  " required
 "supertab
 "let g:SuperTabDefaultCompletionType = "<c-p>"
 let g:SuperTabDefaultCompletionType = "context"
-let g:SuperTabContextDefaultCompletionType = "<c-p>"
+let g:SuperTabContextDefaultCompletionType = "<c-n>"
 let g:SuperTabRetainCompletionType = "insert"
 "autocmd FileType *
 "    \ if &omnifunc != '' |
 "    \   call SuperTabChain(&omnifunc, "<c-p>") |
 "    \ endif
 
-"vim -r- plugin
+"vim-r-plugin
 imap <c-a> <Plug>RCompleteArgs
 autocmd Filetype r vmap <buffer> <Space>  <Plug>REDSendSelection
 autocmd Filetype r nmap <buffer> <Space>  <Plug>RDSendLine
+autocmd Filetype r nmap <buffer> <LocalLeader>rc  <Plug>RClearConsole
+autocmd Filetype r nmap <buffer> <LocalLeader>rr  <Plug>RCustomStart
 "let vimrplugin_tmux_ob = 0 
+let vimrplugin_assign = 2
+let vimrplugin_objbr_w = 35 
 "let vimrplugin_vsplit=0
 "let vimrplugin_objbr_place = "console,right"
 let vimrplugin_rconsole_height = 16
 let vimrplugin_objbr_opendf = 0
+
+function! RplugZoomRunner()
+    if exists("g:rplugin_rconsole_pane")
+        call system("tmux resize-pane -Z -t" . g:rplugin_rconsole_pane)
+    else 
+        echo "Did you alraeay start R?"
+    endif
+endfunction
+
+autocmd Filetype r nmap <buffer> <LocalLeader>rz :call RplugZoomRunner()<CR>
+autocmd Filetype r nmap <buffer> <LocalLeader>rx :RStop<CR>
 
 "dbext
 "source $HOME/db_config.vim
@@ -237,6 +261,8 @@ nmap <Leader>vx :VimuxInterruptRunner<CR>
 nmap <Leader>vz :call VimuxZoomRunner()<CR>
 " clear the console
 nmap <silent><Leader>vc :call VimuxSendKeys("c-l")<CR>
+" Quit the runner without closing the pane
+nmap <Leader>vd :call VimuxExitRunner()<CR>
 
 "The percent of the screen the split pane Vimux will spawn should take up.
 let g:VimuxHeight = "40"
@@ -283,13 +309,21 @@ function! VimuxAction(arg)
     call VimuxSendKeys("Enter")
 endfunction
 
-call VimuxCreateMaps('<Space>', ':call VimuxSlime()', '<silent>')
-nnoremap <silent> <Space> "vyy :call VimuxSlimeOneline()<CR>
+function! VimuxExitRunner()
+    if exists("g:VimuxRunnerIndex")
+        call _VimuxTmux("send-keys -t ".g:VimuxRunnerIndex." "."c-d")
+        call _VimuxTmux("send-keys -t ".g:VimuxRunnerIndex." "."c-d")
+        unlet g:VimuxRunnerIndex
+    endif
+endfunction
 
-nnoremap <silent> <Leader>vp "vyiw :call VimuxAction("print")<CR>
-vnoremap <silent> <Leader>vp "vy :call VimuxAction("print")<CR>
-autocmd Filetype python nnoremap <buffer><silent> <Leader>vt "vyiw :call VimuxAction("type")<CR>
-autocmd Filetype python vnoremap <buffer><silent> <Leader>vt "vy :call VimuxAction("type")<CR>
+call VimuxCreateMaps('<Space>', ':call VimuxSlime()', '<silent>')
+nnoremap <silent> <Space> "vyy:call VimuxSlimeOneline()<CR>
+
+nnoremap <silent> <Leader>vp "vyiw:call VimuxAction("print")<CR>
+vnoremap <silent> <Leader>vp "vy:call VimuxAction("print")<CR>
+autocmd Filetype python nnoremap <buffer><silent> <Leader>vt "vyiw:call VimuxAction("type")<CR>
+autocmd Filetype python vnoremap <buffer><silent> <Leader>vt "vy:call VimuxAction("type")<CR>
 
 "vim-airline
 set laststatus=2
@@ -339,6 +373,11 @@ let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 0 
 let g:syntastic_check_on_open = 1 
 let g:syntastic_check_on_wq = 0 
+
+let g:syntastic_c_config_file = ".clang_complete"
+let g:syntastic_cpp_config_file = ".clang_complete"
+
+
 "python
 let g:syntastic_python_pylint_quiet_messages = { "level": "warnings" }
 "R
@@ -357,12 +396,12 @@ let g:UltiSnipsListSnippets = "<c-l>"
  let g:clang_library_path = '/usr/lib/llvm-3.5/lib/libclang-3.5.so.1'
  "let g:clang_snippets = 1
  "let g:clang_snippets_engine = 'ultisnips'
- let g:clang_complete_auto = 1 
+ let g:clang_complete_auto = 0 
  let g:clang_auto_select = 0
 
- "tagbar
+"tagbar
  nmap  <Leader>tt :TagbarToggle<CR>
  let g:tagbar_width = 35
 
- "nerdtree
+"nerdtree
  nmap  <Leader>nt :NERDTreeToggle<CR>
